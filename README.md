@@ -15,34 +15,72 @@
 
 
 ### Project Description
-[2-3 lines about what your project does]
+OnionScan is a computer-vision based web application that detects and counts the visible layers of an onion from an uploaded image. It uses image processing techniques to identify onion rings and displays the estimated layer count.
 
 ### The Problem (that doesn't exist)
-[What ridiculous problem are you solving?]
+Ever wondered how many layers an onion has without actually counting them?
+
+Apparently, manually counting onion layers is a serious problem that humanity desperately needed to solve.
 
 ### The Solution (that nobody asked for)
-[How are you solving it? Keep it fun!]
+OnionScan lets you upload an image of a cut onion and does the counting for you.
+It processes the image, detects circular onion rings using computer vision and gives you the estimated number of layers just because counting onions should be automated too.
 
 ## Technical Details
 ### Technologies/Components Used
 For Software:
-- [Languages used]
-- [Frameworks used]
-- [Libraries used]
-- [Tools used]
-
-For Hardware:
-- [List main components]
-- [List specifications]
-- [List tools required]
+- Languages used: Python
+- Frameworks used: Flask
+- Libraries used: OpenCV, NumPy
+- Tools used: VS Code, Git & GitHub
 
 ### Implementation
 For Software:
+The application follows this image-processing pipeline:
+
+User
+  ↓
+Upload Onion Image
+  ↓
+Flask Web Application
+  ↓
+Image Preprocessing
+  ├── Resize
+  ├── Grayscale Conversion
+  └── Gaussian Blur
+  ↓
+Hough Circle Detection
+  ↓
+Duplicate Detection Filtering
+  ↓
+Count Onion Rings
+  ↓
+Image + Layer Count
+  ↓
+Display Result
+
+The uploaded image is processed using OpenCV. Hough Circle Transform is used to identify circular patterns corresponding to visible onion layers.
+
 # Installation
-[commands]
+Clone the repository:
+
+git clone https://github.com/Riona-Poly/OnionScan.git
+cd OnionScan
+
+Install the required Python packages:
+
+pip install -r requirements.txt
 
 # Run
-[commands]
+Start the Flask application:
+
+python app.py
+
+Open your browser and visit:
+
+http://127.0.0.1:5000
+
+Upload a cut onion image and click Detect Layers.
 
 ### Project Documentation
 For Software:
@@ -89,9 +127,8 @@ For Hardware:
 [Add any extra demo materials/links]
 
 ## Team Contributions
-- [Name 1]: [Specific contributions]
-- [Name 2]: [Specific contributions]
-- [Name 3]: [Specific contributions]
+- Riona Poly:  Worked on backend testing and validation, verifying and correcting the detected onion layer counts to improve the accuracy of the system and contributed to the frontend development. 
+- Adwaitha P S: Initial project setup and development, contributed to the development of the frontend interface and overall project structure.
 
 ---
 Made with ❤️ at TinkerHub Useless Projects 
