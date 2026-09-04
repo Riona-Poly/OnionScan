@@ -1,0 +1,187 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>OniScan</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #f6f0ff, #fff8f0);
+            min-height: 100vh;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            padding: 30px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+
+            background: white;
+            border-radius: 24px;
+
+            padding: 45px;
+
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12);
+
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 42px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 35px;
+        }
+
+        .upload-box {
+            border: 2px dashed #aaa;
+            border-radius: 18px;
+
+            padding: 40px;
+            margin-bottom: 25px;
+        }
+
+        input[type="file"] {
+            margin: 20px;
+        }
+
+        button {
+            background: #7b4b94;
+            color: white;
+
+            border: none;
+
+            padding: 14px 30px;
+
+            border-radius: 10px;
+
+            font-size: 16px;
+
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .result {
+            margin-top: 35px;
+
+            padding: 25px;
+
+            background: #f5f5f5;
+
+            border-radius: 18px;
+        }
+
+        .result h2 {
+            font-size: 32px;
+            margin: 5px;
+        }
+
+        .result img {
+            max-width: 100%;
+
+            margin-top: 20px;
+
+            border-radius: 12px;
+        }
+
+        .error {
+            color: #b00020;
+            margin-top: 20px;
+        }
+    </style>
+
+</head>
+
+
+<body>
+
+    <div class="container">
+
+        <h1>🧅 OniScan</h1>
+
+        <p class="subtitle">
+            Onion Layer Detection Using Computer Vision
+        </p>
+
+
+        <form method="POST" enctype="multipart/form-data">
+
+            <div class="upload-box">
+
+                <h3>Upload a half-cut onion</h3>
+
+                <input
+                    type="file"
+                    name="image"
+                    accept="image/*"
+                    required
+                >
+
+                <br>
+
+                <button type="submit">
+                    Detect Layers
+                </button>
+
+            </div>
+
+        </form>
+
+
+        {% if error %}
+
+            <div class="error">
+                {{ error }}
+            </div>
+
+        {% endif %}
+
+
+        {% if count is not none %}
+
+            <div class="result">
+
+                <h2>
+                    🧅 {{ count }} Layers Detected
+                </h2>
+
+
+                {% if image %}
+
+                    <img
+                        src="{{ image }}"
+                        alt="Detected onion layers"
+                    >
+
+                {% endif %}
+
+            </div>
+
+        {% endif %}
+
+
+    </div>
+
+</body>
+
+</html>
