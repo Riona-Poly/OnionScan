@@ -137,15 +137,6 @@ def detect_layers(image):
     # Create result image so the existing Flask UI continues working.
     result = image.copy()
 
-    cv2.putText(
-        result,
-        f"Layers: {count}",
-        (20, 45),
-        cv2.FONT_HERSHEY_SIMPLEX,
-        1.2,
-        (0, 255, 0),
-        3,
-        cv2.LINE_AA
-    )
+    
 
     return count, result
