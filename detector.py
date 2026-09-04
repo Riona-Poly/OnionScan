@@ -17,7 +17,6 @@ client = genai.Client(api_key=GEMINI_API_KEY)
 
 MODEL = "gemini-3.6-flash"
 
-
 LAYER_COUNT_PROMPT = """
 Look at the entire uploaded image.
 
