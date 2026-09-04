@@ -1,528 +1,151 @@
+import os
 import cv2
-import numpy as np
+import re
+import base64
+
+from dotenv import load_dotenv
+from google import genai
+
+load_dotenv()
+
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+if not GEMINI_API_KEY:
+    raise RuntimeError("GEMINI_API_KEY not found in .env")
+
+client = genai.Client(api_key=GEMINI_API_KEY)
+
+MODEL = "gemini-3.6-flash"
+
+
+LAYER_COUNT_PROMPT = """
+Look at the entire uploaded image.
+
+The image contains one or more pieces of onion.
+
+Your task is to determine the TOTAL NUMBER OF VISIBLY OBSERVABLE ONION LAYERS across ALL onion pieces in the image.
+
+Important rules:
+
+1. Inspect the ENTIRE image, not just the largest onion piece.
+2. Consider every visible onion piece.
+3. Count genuine visible onion-layer boundaries/rings.
+4. Add the observable layers from all pieces together.
+5. Do NOT count:
+   - shadows
+   - highlights
+   - reflections
+   - cracks
+   - random texture
+   - surface marks
+   - image noise
+   - color changes that are not actual onion layers
+   - the outer image/background boundary
+6. Do not invent hidden layers that cannot be visually observed.
+7. Only count layers that can actually be seen in the image.
+8. The final answer must be ONE integer representing the net total across ALL pieces.
+
+Return ONLY the integer.
+
+Examples:
+If there are 6 visible layers in one piece and 4 visible layers in another piece, return:
+10
+
+If there are 8 visible layers total, return:
+8
+
+Do not return words, explanations, labels, punctuation, or JSON.
+"""
+
+
+def image_to_base64(image):
+    """
+    Convert OpenCV image (numpy array) to JPEG Base64 string.
+    """
+
+    success, encoded = cv2.imencode(
+        ".jpg",
+        image,
+        [cv2.IMWRITE_JPEG_QUALITY, 95]
+    )
+
+    if not success:
+        raise RuntimeError("Could not encode image as JPEG.")
+
+    return base64.b64encode(encoded.tobytes()).decode("utf-8")
+
+
+def extract_integer(text):
+    """
+    Extract the first integer from Gemini's response.
+    """
+
+    if not text:
+        raise RuntimeError("Gemini returned an empty response.")
+
+    match = re.search(r"\b\d+\b", text.strip())
+
+    if not match:
+        raise RuntimeError(
+            f"Gemini did not return a valid integer. Response: {text}"
+        )
+
+    return int(match.group())
 
 
 def detect_layers(image):
+    """
+    Sends the complete image to Gemini Vision and returns:
+
+        (layer_count, result_image)
+
+    The Flask application can continue using the same interface.
+    """
 
     if image is None:
-        return 0, image
-
-    # =========================================================
-    # 1. PREPARE IMAGE
-    # =========================================================
-
-    image = cv2.resize(image, (600, 600))
-    result = image.copy()
-
-    h, w = image.shape[:2]
-
-    # =========================================================
-    # 2. COLOR SPACES
-    # =========================================================
-
-    lab = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
-    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-
-    L, A, B = cv2.split(lab)
-    H, S, V = cv2.split(hsv)
-
-    # Convert to float
-    L = L.astype(np.float32)
-    A = A.astype(np.float32)
-    S = S.astype(np.float32)
-
-    # =========================================================
-    # 3. LIGHTING NORMALIZATION
-    #
-    # Remove VERY slow illumination changes.
-    #
-    # Example:
-    #
-    # left side = bright
-    # right side = dark
-    #
-    # This shouldn't be mistaken for a layer.
-    # =========================================================
-
-    background = cv2.GaussianBlur(
-        L,
-        (0, 0),
-        45
-    )
-
-    normalized_L = L - background
-
-    # =========================================================
-    # 4. LOCAL CONTRAST
-    #
-    # This is the important part for LIGHT onions.
-    #
-    # We compare small-scale changes instead of absolute
-    # brightness.
-    # =========================================================
-
-    small_L = cv2.GaussianBlur(
-        L,
-        (0, 0),
-        2
-    )
-
-    medium_L = cv2.GaussianBlur(
-        L,
-        (0, 0),
-        7
-    )
-
-    brightness_detail = (
-        small_L - medium_L
-    )
-
-    # Color detail
-    small_A = cv2.GaussianBlur(
-        A,
-        (0, 0),
-        2
-    )
-
-    medium_A = cv2.GaussianBlur(
-        A,
-        (0, 0),
-        7
-    )
-
-    red_detail = (
-        small_A - medium_A
-    )
-
-    # Saturation detail
-    small_S = cv2.GaussianBlur(
-        S,
-        (0, 0),
-        2
-    )
-
-    medium_S = cv2.GaussianBlur(
-        S,
-        (0, 0),
-        7
-    )
-
-    saturation_detail = (
-        small_S - medium_S
-    )
-
-    # =========================================================
-    # 5. GRADIENTS
-    #
-    # Detect sharp transitions.
-    # =========================================================
-
-    gx_L = cv2.Sobel(
-        L,
-        cv2.CV_32F,
-        1,
-        0,
-        ksize=3
-    )
-
-    gy_L = cv2.Sobel(
-        L,
-        cv2.CV_32F,
-        0,
-        1,
-        ksize=3
-    )
-
-    gradient_L = cv2.magnitude(
-        gx_L,
-        gy_L
-    )
-
-    gx_A = cv2.Sobel(
-        A,
-        cv2.CV_32F,
-        1,
-        0,
-        ksize=3
-    )
-
-    gy_A = cv2.Sobel(
-        A,
-        cv2.CV_32F,
-        0,
-        1,
-        ksize=3
-    )
-
-    gradient_A = cv2.magnitude(
-        gx_A,
-        gy_A
-    )
-
-    gx_S = cv2.Sobel(
-        S,
-        cv2.CV_32F,
-        1,
-        0,
-        ksize=3
-    )
-
-    gy_S = cv2.Sobel(
-        S,
-        cv2.CV_32F,
-        0,
-        1,
-        ksize=3
-    )
-
-    gradient_S = cv2.magnitude(
-        gx_S,
-        gy_S
-    )
-
-    # =========================================================
-    # 6. NORMALIZE EACH SIGNAL
-    #
-    # Percentile normalization prevents one strong feature
-    # from dominating everything.
-    # =========================================================
-
-    def normalize_signal(signal):
-
-        low = np.percentile(
-            signal,
-            10
-        )
-
-        high = np.percentile(
-            signal,
-            95
-        )
-
-        if high - low < 1e-6:
-            return np.zeros_like(signal)
-
-        signal = (
-            signal - low
-        ) / (
-            high - low
-        )
-
-        return np.clip(
-            signal,
-            0,
-            1
-        )
-
-    gradient_L = normalize_signal(
-        gradient_L
-    )
-
-    gradient_A = normalize_signal(
-        gradient_A
-    )
-
-    gradient_S = normalize_signal(
-        gradient_S
-    )
-
-    # =========================================================
-    # 7. COMBINE COLOR + BRIGHTNESS BOUNDARIES
-    # =========================================================
-
-    boundary_map = (
-        0.45 * gradient_L +
-        0.35 * gradient_A +
-        0.20 * gradient_S
-    )
-
-    # =========================================================
-    # 8. RADIAL ANALYSIS
-    #
-    # We still use rays, but NOT circles as a requirement.
-    #
-    # Every direction gets its own boundary profile.
-    # =========================================================
-
-    cx = w // 2
-    cy = h // 2
-
-    max_radius = min(
-        cx,
-        cy
-    ) - 20
-
-    radii = np.arange(
-        15,
-        max_radius
-    )
-
-    # Fewer rays = faster
-    angles = np.linspace(
-        0,
-        2 * np.pi,
-        240,
-        endpoint=False
-    )
-
-    radial_profiles = []
-
-    for angle in angles:
-
-        cos_a = np.cos(angle)
-        sin_a = np.sin(angle)
-
-        xs = (
-            cx +
-            radii * cos_a
-        ).astype(np.int32)
-
-        ys = (
-            cy +
-            radii * sin_a
-        ).astype(np.int32)
-
-        valid = (
-            (xs >= 0) &
-            (xs < w) &
-            (ys >= 0) &
-            (ys < h)
-        )
-
-        profile = np.zeros(
-            len(radii),
-            dtype=np.float32
-        )
-
-        profile[valid] = boundary_map[
-            ys[valid],
-            xs[valid]
-        ]
-
-        radial_profiles.append(
-            profile
-        )
-
-    radial_profiles = np.array(
-        radial_profiles,
-        dtype=np.float32
-    )
-
-    # =========================================================
-    # 9. SUPPRESS ISOLATED NOISE
-    #
-    # A real onion boundary should usually appear in several
-    # neighboring directions.
-    # =========================================================
-
-    radial_profiles = cv2.GaussianBlur(
-        radial_profiles,
-        (1, 5),
-        0
-    )
-
-    # =========================================================
-    # 10. BOUNDARY EVIDENCE
-    #
-    # Instead of median, use multiple statistics.
-    #
-    # 50th percentile = fairly common
-    # 75th percentile = stronger evidence
-    # maximum = detects partially visible boundaries
-    # =========================================================
-
-    p50 = np.percentile(
-        radial_profiles,
-        50,
-        axis=0
-    )
-
-    p75 = np.percentile(
-        radial_profiles,
-        75,
-        axis=0
-    )
-
-    p90 = np.percentile(
-        radial_profiles,
-        90,
-        axis=0
-    )
-
-    boundary_score = (
-        0.40 * p50 +
-        0.40 * p75 +
-        0.20 * p90
-    )
-
-    # =========================================================
-    # 11. NORMALIZE FINAL PROFILE
-    # =========================================================
-
-    low = np.percentile(
-        boundary_score,
-        20
-    )
-
-    high = np.percentile(
-        boundary_score,
-        95
-    )
-
-    if high - low > 1e-6:
-
-        boundary_score = (
-            boundary_score - low
-        ) / (
-            high - low
-        )
-
-    boundary_score = np.clip(
-        boundary_score,
-        0,
-        1
-    )
-
-    # Smooth only slightly
-    boundary_score = cv2.GaussianBlur(
-        boundary_score.reshape(-1, 1),
-        (1, 7),
-        0
-    ).flatten()
-
-    # =========================================================
-    # 12. PEAK DETECTION
-    # =========================================================
-
-    candidates = []
-
-    for i in range(
-        6,
-        len(boundary_score) - 6
-    ):
-
-        current = boundary_score[i]
-
-        # Local maximum
-        local = boundary_score[
-            i - 5:i + 6
-        ]
-
-        if current != np.max(local):
-            continue
-
-        # Adaptive local threshold
-        surrounding = np.concatenate([
-            boundary_score[
-                i - 12:i - 6
-            ],
-            boundary_score[
-                i + 7:i + 13
+        raise ValueError("Input image is None.")
+
+    # Convert OpenCV image -> Base64 JPEG
+    image_b64 = image_to_base64(image)
+
+    try:
+        interaction = client.interactions.create(
+            model=MODEL,
+            input=[
+                {
+                    "type": "text",
+                    "text": LAYER_COUNT_PROMPT
+                },
+                {
+                    "type": "image",
+                    "data": image_b64,
+                    "mime_type": "image/jpeg"
+                }
             ]
-        ])
-
-        local_mean = np.mean(
-            surrounding
         )
 
-        local_std = np.std(
-            surrounding
-        )
+        response_text = interaction.output_text
 
-        # Peak must stand above its surroundings
-        prominence = (
-            current -
-            local_mean
-        )
+        print("Gemini response:", response_text)
 
-        if (
-            current > 0.28
-            and
-            prominence >
-            max(
-                0.035,
-                0.45 * local_std
-            )
-        ):
+        count = extract_integer(response_text)
 
-            candidates.append(i)
+    except Exception as e:
+        print("Gemini detection error:", repr(e))
+        raise RuntimeError(f"Gemini detection failed: {e}")
 
-    # =========================================================
-    # 13. MERGE NEARBY PEAKS
-    # =========================================================
-
-    candidates = sorted(
-        candidates,
-        key=lambda i: boundary_score[i],
-        reverse=True
-    )
-
-    selected = []
-
-    minimum_spacing = 10
-
-    for index in candidates:
-
-        radius = int(
-            radii[index]
-        )
-
-        if radius < 25:
-            continue
-
-        too_close = False
-
-        for selected_index in selected:
-
-            selected_radius = int(
-                radii[selected_index]
-            )
-
-            if abs(
-                radius -
-                selected_radius
-            ) < minimum_spacing:
-
-                too_close = True
-                break
-
-        if not too_close:
-
-            selected.append(index)
-
-    # Sort inside → outside
-    selected.sort()
-
-    # =========================================================
-    # 14. REASONABLE RANGE
-    # =========================================================
-
-    detected_radii = [
-        int(radii[i])
-        for i in selected
-    ]
-
-    # Onion usually doesn't have dozens of visible boundaries.
-    detected_radii = detected_radii[:10]
-
-    layer_count = len(
-        detected_radii
-    )
-
-    # =========================================================
-    # 15. NO GREEN CIRCLES
-    #
-    # We deliberately DON'T draw the detected radii.
-    # =========================================================
+    # Create result image so the existing Flask UI continues working.
+    result = image.copy()
 
     cv2.putText(
         result,
-        f"Layers: {layer_count}",
-        (20, 40),
+        f"Layers: {count}",
+        (20, 45),
         cv2.FONT_HERSHEY_SIMPLEX,
-        1,
-        (0, 0, 255),
-        2
+        1.2,
+        (0, 255, 0),
+        3,
+        cv2.LINE_AA
     )
 
-    return layer_count, result
+    return count, result
