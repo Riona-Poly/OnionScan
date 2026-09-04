@@ -38,6 +38,7 @@ For Software:
 For Software:
 The application follows this image-processing pipeline:
 
+```text
 User
   ↓
 Upload Onion Image
@@ -58,6 +59,7 @@ Count Onion Rings
 Image + Layer Count
   ↓
 Display Result
+```
 
 The uploaded image is processed using OpenCV. Hough Circle Transform is used to identify circular patterns corresponding to visible onion layers.
 
@@ -65,6 +67,7 @@ The uploaded image is processed using OpenCV. Hough Circle Transform is used to 
 Clone the repository:
 
 git clone https://github.com/Riona-Poly/OnionScan.git
+
 cd OnionScan
 
 Install the required Python packages:
