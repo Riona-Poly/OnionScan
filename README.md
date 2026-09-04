@@ -15,7 +15,9 @@
 
 
 ### Project Description
-OnionScan is a computer-vision based web application that detects and counts the visible layers of an onion from an uploaded image. It uses image processing techniques to identify onion rings and displays the estimated layer count.
+OnionScan is a web application that detects and counts the visibly observable layers of an onion from an uploaded or captured image.
+
+The application uses a Flask backend and Gemini 3.6 Flash to analyze the onion image and return the total number of visible layers across all onion pieces in the image.
 
 ### The Problem (that doesn't exist)
 Ever wondered how many layers an onion has without actually counting them?
@@ -23,45 +25,59 @@ Ever wondered how many layers an onion has without actually counting them?
 Apparently, manually counting onion layers is a serious problem that humanity desperately needed to solve.
 
 ### The Solution (that nobody asked for)
-OnionScan lets you upload an image of a cut onion and does the counting for you.
-It processes the image, detects circular onion rings using computer vision and gives you the estimated number of layers just because counting onions should be automated too.
+OnionScan lets you capture or upload an image of a cut onion and automatically counts its visible layers.
+
+The image is sent to the backend, processed, and analyzed using Gemini 3.6 Flash. The detected layer count is then displayed to the user.
 
 ## Technical Details
 ### Technologies/Components Used
-For Software:
-- Languages used: Python
-- Frameworks used: Flask
-- Libraries used: OpenCV, NumPy
-- Tools used: VS Code, Git & GitHub
+**For Software:**
+
+- Language: Python
+- Framework: Flask
+- AI Model: Gemini 3.6 Flash
+- Libraries:
+  - OpenCV
+  - google-genai
+  - python-dotenv
+- Frontend:
+  - HTML
+  - CSS
+  - JavaScript
+- Tools:
+  - VS Code
+  - Git
+  - GitHub
+
 
 ### Implementation
-For Software:
-The application follows this image-processing pipeline:
+The application follows this pipeline:
 
 ```text
 User
   ↓
-Upload Onion Image
+Capture Image / Upload Image
   ↓
-Flask Web Application
+Frontend
   ↓
-Image Preprocessing
-  ├── Resize
-  ├── Grayscale Conversion
-  └── Gaussian Blur
+Image Preview
   ↓
-Hough Circle Detection
+Automatic Submission
   ↓
-Duplicate Detection Filtering
+Flask Backend
   ↓
-Count Onion Rings
+Image Validation & Processing
   ↓
-Image + Layer Count
+Convert Image to Base64
+  ↓
+Gemini 3.6 Flash
+  ↓
+Analyze Visible Onion Layers
+  ↓
+Return Layer Count
   ↓
 Display Result
 ```
-
-The uploaded image is processed using OpenCV. Hough Circle Transform is used to identify circular patterns corresponding to visible onion layers.
 
 # Installation
 Clone the repository:
@@ -88,46 +104,46 @@ Upload a cut onion image and click Detect Layers.
 ### Project Documentation
 For Software:
 
-# Screenshots (Add at least 3)
-![Screenshot1](Add screenshot 1 here with proper name)
-*Add caption explaining what this shows*
+## Screenshots
 
-![Screenshot2](Add screenshot 2 here with proper name)
-*Add caption explaining what this shows*
+### 1. OniScan Interface
 
-![Screenshot3](Add screenshot 3 here with proper name)
-*Add caption explaining what this shows*
+![OniScan Interface](static/screenshots/Screenshot1.png)
 
-# Diagrams
-![Workflow](Add your workflow/architecture diagram here)
-*Add caption explaining your workflow*
+*Main OniScan interface showing the image upload and camera options.*
 
-For Hardware:
+### 2. Backend Code
 
-# Schematic & Circuit
-![Circuit](Add your circuit diagram here)
-*Add caption explaining connections*
+![Backend Code](static/screenshots/Screenshot2.png)
 
-![Schematic](Add your schematic diagram here)
-*Add caption explaining the schematic*
+*Backend implementation used for processing the uploaded image and detecting onion layers.*
 
-# Build Photos
-![Components](Add photo of your components here)
-*List out all components shown*
+### 3. Detection Result
 
-![Build](Add photos of build process here)
-*Explain the build steps*
+![Detection Result](static/screenshots/Screenshot3.png)
 
-![Final](Add photo of final product here)
-*Explain the final build*
+*Example of the detected onion-layer count displayed by OniScan.*
 
-### Project Demo
-# Video
-[Add your demo video link here]
-*Explain what the video demonstrates*
+## Diagrams
 
-# Additional Demos
-[Add any extra demo materials/links]
+### Workflow
+
+![OniScan Workflow](static/screenshots/workflow.png)
+
+*Workflow of OniScan from image capture/upload to onion-layer detection and result display.*
+
+
+
+
+
+## Project Demo
+
+### Video
+
+[Watch the OniScan Demo](static/Recording.mp4)
+
+*This video demonstrates the complete OniScan workflow, including capturing or uploading an onion image, automatic image submission, AI-based onion layer detection using Gemini 3.6 Flash, and displaying the detected layer count.*
+
 
 ## Team Contributions
 - Riona Poly:  Worked on backend testing and validation, verifying and correcting the detected onion layer counts to improve the accuracy of the system and contributed to the frontend development. 
