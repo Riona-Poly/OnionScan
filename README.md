@@ -2,17 +2,17 @@
 
 
 
-# [Project Name] 🎯
+# OnionScan 🎯
 
 
 ## Basic Details
-### Team Name: [Name]
+### Team Name: Java
 
 
 ### Team Members
-- Team Lead: [Name] - [College]
-- Member 2: [Name] - [College]
-- Member 3: [Name] - [College]
+- Team Lead: Riona Poly - Model Engineering College
+- Member 2: Adwaitha P S - Model Engineering College
+
 
 ### Project Description
 [2-3 lines about what your project does]
