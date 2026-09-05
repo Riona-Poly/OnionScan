@@ -91,13 +91,10 @@ Install the required Python packages:
 pip install -r requirements.txt
 
 # Run
-Start the Flask application:
-
-python app.py
 
 Open your browser and visit:
 
-http://127.0.0.1:5000
+https://savalagirigiri.onrender.com/
 
 Upload a cut onion image and click Detect Layers.
 
@@ -108,7 +105,7 @@ For Software:
 
 ### 1. Savalagirigiri Interface
 
-![OniScan Interface](static/screenshots/Screenshot1.png)
+![Savalagirigiri Interface](static/screenshots/Screenshot1.png)
 
 *Main Savalagirigiri interface showing the image upload and camera options.*
 
@@ -122,7 +119,7 @@ For Software:
 
 ![Detection Result](static/screenshots/Screenshot3.png)
 
-*Example of the detected onion-layer count displayed by OniScan.*
+*Example of the detected onion-layer count displayed by Savalagirigiri.*
 
 ## Diagrams
 
@@ -130,7 +127,7 @@ For Software:
 
 ![Savalagirigiri Workflow](static/screenshots/workflow.png)
 
-*Workflow of OniScan from image capture/upload to onion-layer detection and result display.*
+*Workflow of Savalagirigiri from image capture/upload to onion-layer detection and result display.*
 
 
 
