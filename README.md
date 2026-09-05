@@ -2,7 +2,7 @@
 
 
 
-# OnionScan 🎯
+# Savalagirigiri 🎯
 
 
 ## Basic Details
@@ -15,7 +15,7 @@
 
 
 ### Project Description
-OnionScan is a web application that detects and counts the visibly observable layers of an onion from an uploaded or captured image.
+Savalagirigiri is a web application that detects and counts the visibly observable layers of an onion from an uploaded or captured image.
 
 The application uses a Flask backend and Gemini 3.6 Flash to analyze the onion image and return the total number of visible layers across all onion pieces in the image.
 
@@ -25,7 +25,7 @@ Ever wondered how many layers an onion has without actually counting them?
 Apparently, manually counting onion layers is a serious problem that humanity desperately needed to solve.
 
 ### The Solution (that nobody asked for)
-OnionScan lets you capture or upload an image of a cut onion and automatically counts its visible layers.
+Savalagirigiri lets you capture or upload an image of a cut onion and automatically counts its visible layers.
 
 The image is sent to the backend, processed, and analyzed using Gemini 3.6 Flash. The detected layer count is then displayed to the user.
 
@@ -106,11 +106,11 @@ For Software:
 
 ## Screenshots
 
-### 1. OniScan Interface
+### 1. Savalagirigiri Interface
 
 ![OniScan Interface](static/screenshots/Screenshot1.png)
 
-*Main OniScan interface showing the image upload and camera options.*
+*Main Savalagirigiri interface showing the image upload and camera options.*
 
 ### 2. Backend Code
 
@@ -128,7 +128,7 @@ For Software:
 
 ### Workflow
 
-![OniScan Workflow](static/screenshots/workflow.png)
+![Savalagirigiri Workflow](static/screenshots/workflow.png)
 
 *Workflow of OniScan from image capture/upload to onion-layer detection and result display.*
 
@@ -140,9 +140,9 @@ For Software:
 
 ### Video
 
-[Watch the OniScan Demo](static/Recording.mp4)
+[Watch the Savalagirigiri Demo](static/Recording.mp4)
 
-*This video demonstrates the complete OniScan workflow, including capturing or uploading an onion image, automatic image submission, AI-based onion layer detection using Gemini 3.6 Flash, and displaying the detected layer count.*
+*This video demonstrates the complete Savalagirigiri workflow, including capturing or uploading an onion image, automatic image submission, AI-based onion layer detection using Gemini 3.6 Flash, and displaying the detected layer count.*
 
 
 ## Team Contributions
