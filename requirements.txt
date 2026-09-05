@@ -2,3 +2,4 @@ Flask
 opencv-python
 google-genai
 python-dotenv
+gunicorn
